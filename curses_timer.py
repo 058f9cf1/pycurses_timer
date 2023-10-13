@@ -12,10 +12,8 @@ def error_check(t):
 		t = int(t)
 	except ValueError:
 		return 1
-	#Check if t is positive
-	if(t<1):
-		return 1
-	return 0
+	#Check that t is positive
+	return t < 1
 
 
 def draw_digit(screen, oy, ox, number):
@@ -36,10 +34,10 @@ def run_timer(screen, t):
 		screen.erase()
 		#Get screen size
 		rows, cols = screen.getmaxyx()
-		
+
 		#TODO: Check if screen is too small
 		#What is the minimum screen size?
-		
+
 		#Subtract a second
 		t -= 1
 		#Convert seconds to minutes and seconds
@@ -52,8 +50,8 @@ def run_timer(screen, t):
 		draw_digit(screen, rows//2 - 5, cols//2 + 4, digits[2])
 		draw_digit(screen, rows//2 - 5, cols//2 + 18, digits[3])
 		#Display the colon between minutes and seconds
-		screen.addstr(rows//2+1,cols//2,"  ",curses.color_pair(1))
-		screen.addstr(rows//2-1,cols//2,"  ",curses.color_pair(1))
+		screen.addstr(rows//2+1,cols//2, "  ", curses.color_pair(1))
+		screen.addstr(rows//2-1,cols//2, "  ", curses.color_pair(1))
 		#Show the new digits
 		screen.refresh()
 		#Check if the user quits
@@ -63,13 +61,11 @@ def run_timer(screen, t):
 
 
 if  __name__ == "__main__":
-	#Try getting timer length from arguments
-	try:
-		t = sys.argv[1]
 	#Error if no argument given
-	except IndexError:
+	if len(sys.argv) < 2:
 		print("ERROR: No argument given")
 	else:
+		t = sys.argv[1]
 		#Check if the argument is in the correct format
 		if(not error_check(t)):
 			curses.wrapper(run_timer, int(t))
