@@ -1,9 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import time
 import sys
 import curses
 import templates
+
+SIZE = 2
 
 
 def error_check(t):
@@ -18,9 +20,10 @@ def error_check(t):
 
 def draw_digit(screen, oy, ox, number):
 	template = templates.templates(int(number))
-	for i in range(len(template)):
-		for j in range(len(template[i])):
-			screen.addstr(i+oy, j+ox, " ", curses.color_pair(template[i][j]))
+	for i in range(0, len(template) * SIZE, SIZE):
+		for j in range(len(template[i//SIZE])):
+			for k in range(SIZE):
+				screen.addstr(i+oy+k, j+ox, " ", curses.color_pair(template[i//SIZE][j]))
 
 
 def run_timer(screen, t):
@@ -35,9 +38,6 @@ def run_timer(screen, t):
 		#Get screen size
 		rows, cols = screen.getmaxyx()
 
-		#TODO: Check if screen is too small
-		#What is the minimum screen size?
-
 		#Subtract a second
 		t -= 1
 		#Convert seconds to minutes and seconds
@@ -45,10 +45,10 @@ def run_timer(screen, t):
 		#Add leading zeroes to the time if only one digit
 		digits = str(m).zfill(2) + str(s).zfill(2)
 		#Display digits on the screen
-		draw_digit(screen, rows//2 - 5, cols//2 - 28, digits[0])
-		draw_digit(screen, rows//2 - 5, cols//2 - 14, digits[1])
-		draw_digit(screen, rows//2 - 5, cols//2 + 4, digits[2])
-		draw_digit(screen, rows//2 - 5, cols//2 + 18, digits[3])
+		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 - 28, digits[0])
+		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 - 14, digits[1])
+		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 4, digits[2])
+		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 18, digits[3])
 		#Display the colon between minutes and seconds
 		screen.addstr(rows//2+1,cols//2, "  ", curses.color_pair(1))
 		screen.addstr(rows//2-1,cols//2, "  ", curses.color_pair(1))
