@@ -3,23 +3,39 @@
 import time
 import sys
 import curses
-import templates
 
 SIZE = 2
 
+#Digit character parts
+f = [1,1,1,1,1,1,1,1,1,1,1,1]
+l = [1,1,1,1,0,0,0,0,0,0,0,0]
+r = [0,0,0,0,0,0,0,0,1,1,1,1]
+g = [1,1,1,1,0,0,0,0,1,1,1,1]
 
-def error_check(t):
+templates = [[f,g,g,g,f],	#0
+			 [r,r,r,r,r],	#1
+			 [f,r,f,l,f],	#2
+			 [f,r,f,r,f],	#3
+			 [g,g,f,r,r],	#4
+			 [f,l,f,r,f],	#5
+			 [f,l,f,g,f],	#6
+			 [f,r,r,r,r],	#7
+			 [f,g,f,g,f],	#8
+			 [f,g,f,r,f]]	#9
+
+
+def is_p_int(t):
 	#Check if t is an integer
 	try:
 		t = int(t)
 	except ValueError:
-		return 1
+		return False
 	#Check that t is positive
-	return t < 1
+	return t > 0
 
 
 def draw_digit(screen, oy, ox, number):
-	template = templates.templates(int(number))
+	template = templates[int(number)]
 	for i in range(0, len(template) * SIZE, SIZE):
 		for j in range(len(template[i//SIZE])):
 			for k in range(SIZE):
@@ -31,15 +47,15 @@ def run_timer(screen, t):
 	curses.curs_set(0)
 	screen.nodelay(1)
 	curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+	curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_RED)
 	#Loop whilst the time has not elapsed
 	while(key_pressed != ord('q') and t > 0):
 		#Clear the screen
 		screen.erase()
 		#Get screen size
 		rows, cols = screen.getmaxyx()
+		screen.addstr(rows - 1, 0, "press 'q' to quit", curses.color_pair(1))
 
-		#Subtract a second
-		t -= 1
 		#Convert seconds to minutes and seconds
 		m, s = divmod(t, 60)
 		#Add leading zeroes to the time if only one digit
@@ -47,27 +63,38 @@ def run_timer(screen, t):
 		#Display digits on the screen
 		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 - 28, digits[0])
 		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 - 14, digits[1])
-		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 4, digits[2])
-		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 18, digits[3])
+		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 4, digits[-2])
+		draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 18, digits[-1])
 		#Display the colon between minutes and seconds
-		screen.addstr(rows//2+1,cols//2, "  ", curses.color_pair(1))
-		screen.addstr(rows//2-1,cols//2, "  ", curses.color_pair(1))
+		screen.addstr(rows//2+1, cols//2, "  ", curses.color_pair(1))
+		screen.addstr(rows//2-1, cols//2, "  ", curses.color_pair(1))
 		#Show the new digits
 		screen.refresh()
 		#Check if the user quits
 		key_pressed = screen.getch()
 		#Wait 1 second
 		time.sleep(1)
+		#Subtract a second
+		t -= 1
+
+	#Turn background red once time's up
+	screen.bkgd(' ', curses.color_pair(2))
+	draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 18, '0')
+	screen.refresh()
+
+	#Quit when the user presses q
+	while(key_pressed != ord('q')):
+		key_pressed = screen.getch()
 
 
 if  __name__ == "__main__":
 	#Error if no argument given
 	if len(sys.argv) < 2:
-		print("ERROR: No argument given")
+		print("USAGE: ./curses_timer.py <time>")
 	else:
 		t = sys.argv[1]
 		#Check if the argument is in the correct format
-		if(not error_check(t)):
+		if is_p_int(t):
 			curses.wrapper(run_timer, int(t))
 		else:
 			print("ERROR: Argument not a positive integer")
