@@ -56,8 +56,11 @@ def run_timer(screen, t):
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
     curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_RED)
 
-    # Loop whilst the time has not elapsed
-    while key_pressed != ord('q') and t > 0:
+    start = time.time()
+    elapsed = 0
+
+    # Loop until the user presses 'q'
+    while key_pressed != ord('q'):
 
         # Clear the screen
         screen.erase()
@@ -66,41 +69,36 @@ def run_timer(screen, t):
         rows, cols = screen.getmaxyx()
         screen.addstr(rows - 1, 0, "press 'q' to quit", curses.color_pair(1))
 
-        # Convert seconds to minutes and seconds
-        m, s = divmod(t, 60)
+        if elapsed < t:
+            # Calculate how much time has passed
+            elapsed = time.time() - start
 
-        # Add leading zeroes to the time if only one digit
-        digits = str(m).zfill(2) + str(s).zfill(2)
+            # Convert time left in seconds to minutes and seconds
+            m, s = divmod(int(t - elapsed), 60)
+
+            # Add leading zeroes to the time if only one digit
+            digits = str(m).zfill(2) + str(s).zfill(2)
+        else:
+            # Turn background red once time's up
+            screen.bkgd(' ', curses.color_pair(2))
+
 
         # Display digits on the screen
-        draw_digit(screen, (rows - SIZE * 5)//2, cols//2 - 28, digits[0])
-        draw_digit(screen, (rows - SIZE * 5)//2, cols//2 - 14, digits[1])
-        draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 4, digits[-2])
-        draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 18, digits[-1])
+        oy = (rows - SIZE * 5)//2
+        ox = cols//2
+        draw_digit(screen, oy, ox - 28, digits[-4])
+        draw_digit(screen, oy, ox - 14, digits[-3])
+        draw_digit(screen, oy, ox + 4, digits[-2])
+        draw_digit(screen, oy, ox + 18, digits[-1])
 
         # Display the colon between minutes and seconds
-        screen.addstr(rows//2+1, cols//2, "  ", curses.color_pair(1))
-        screen.addstr(rows//2-1, cols//2, "  ", curses.color_pair(1))
+        screen.addstr(rows//2 + 1, ox, "  ", curses.color_pair(1))
+        screen.addstr(rows//2 - 1, ox, "  ", curses.color_pair(1))
 
-        # Show the new digits
+        # Update the screen
         screen.refresh()
 
         # Check if the user has quit
-        key_pressed = screen.getch()
-
-        # Wait 1 second
-        time.sleep(1)
-
-        # Subtract a second
-        t -= 1
-
-    # Turn background red once time's up
-    screen.bkgd(' ', curses.color_pair(2))
-    draw_digit(screen, (rows - SIZE * 5)//2, cols//2 + 18, '0')
-    screen.refresh()
-
-    # Quit when the user presses q
-    while key_pressed != ord('q'):
         key_pressed = screen.getch()
 
 
