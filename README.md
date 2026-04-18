@@ -1,9 +1,18 @@
 # Pycurses Timer
-A simple pycurses timer
+
+A simple timer built with pycurses.
+
+## Installation
+
+Clone the repository with `https://github.com/058f9cf1/pycurses_timer.git`.
 
 ## Usage
+
 ```
-./pycurses_timer.py <time>
+./curses_timer.py <time>
 ```
-Time should be given in seconds
-Press 'q' to quit
+Time should be given in seconds. Press `q` to quit.
+
+## License
+
+This project is available under the MIT license. See [LICENSE](LICENSE) for more information.
