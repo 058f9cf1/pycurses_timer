@@ -5,6 +5,8 @@ import sys
 import curses
 
 SIZE = 2
+digit_height = SIZE * 5
+digit_width = SIZE * 6
 
 # Digit character parts
 f = [1, 1, 1, 1, 1, 1]
@@ -74,22 +76,22 @@ def run_timer(screen, t):
             elapsed = time.time() - start
 
             # Convert time left in seconds to minutes and seconds
-            m, s = divmod(int(t - elapsed), 60)
+            m, s = divmod(int(t - elapsed) + 1, 60)
 
             # Add leading zeroes to the time if only one digit
             digits = str(m).zfill(2) + str(s).zfill(2)
         else:
             # Turn background red once time's up
             screen.bkgd(' ', curses.color_pair(2))
-
+            digits = "0000"
 
         # Display digits on the screen
-        oy = (rows - SIZE * 5)//2
+        oy = rows//2 - digit_height//2
         ox = cols//2
-        draw_digit(screen, oy, ox - 28, digits[-4])
-        draw_digit(screen, oy, ox - 14, digits[-3])
-        draw_digit(screen, oy, ox + 4, digits[-2])
-        draw_digit(screen, oy, ox + 18, digits[-1])
+        draw_digit(screen, oy, ox - digit_width * 2 - SIZE * 2,     digits[-4])
+        draw_digit(screen, oy, ox - digit_width     - SIZE,         digits[-3])
+        draw_digit(screen, oy, ox                   + SIZE + 2,     digits[-2])
+        draw_digit(screen, oy, ox + digit_width     + SIZE * 2 + 2, digits[-1])
 
         # Display the colon between minutes and seconds
         screen.addstr(rows//2 + 1, ox, "  ", curses.color_pair(1))
