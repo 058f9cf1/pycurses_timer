@@ -4,7 +4,7 @@ A simple timer built with pycurses.
 
 ## Installation
 
-Clone the repository with `https://github.com/058f9cf1/pycurses_timer.git`.
+Clone the repository with `git clone https://github.com/058f9cf1/pycurses_timer.git`.
 
 ## Usage
 
